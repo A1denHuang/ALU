@@ -1,0 +1,16 @@
+# Simulator-generated libraries and outputs
+/work/
+/sim/work/
+*.wlf
+**/transcript
+*.cr.mti
+modelsim.ini
+*.ucdb
+
+# Machine-local Questa project settings and editor backups
+*.mpf
+*.bak
+
+# Local scratch materials
+/assets/
+/sequence.sv
