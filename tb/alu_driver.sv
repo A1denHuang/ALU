@@ -22,7 +22,6 @@ class alu_driver;
     #1;
   endtask
   
-  // 任务用于在驱动器中设置空闲状态
   task idle();
     @(negedge vif.clk);
     vif.req_valid = 1'b0;

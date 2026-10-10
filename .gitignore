@@ -1,11 +1,14 @@
 # Simulator-generated libraries and outputs
 /work/
 /sim/work/
+/BASIC/work_basics/
+/BASIC/P9/work_p9/
 *.wlf
 **/transcript
 *.cr.mti
 modelsim.ini
 *.ucdb
+/sim/regression.log
 
 # Machine-local Questa project settings and editor backups
 *.mpf
@@ -14,3 +17,4 @@ modelsim.ini
 # Local scratch materials
 /assets/
 /sequence.sv
+/项目学习笔记.md

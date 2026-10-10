@@ -16,7 +16,7 @@ module simple_alu #(
   localparam logic [2:0] OP_AND = 3'd2;
   localparam logic [2:0] OP_OR  = 3'd3;
   localparam logic [2:0] OP_XOR = 3'd4;
-  localparam logic [2:0] OP_LEFTSHIFT = 3'd5;//新增操作模式：左移.
+  localparam logic [2:0] OP_LEFTSHIFT = 3'd5;
 
   always_ff @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
@@ -30,9 +30,9 @@ module simple_alu #(
           OP_SUB: result <= a - b;
           OP_AND: result <= a & b;
           OP_OR : result <= a | b;
-          OP_XOR: result <= a ^ b;
-	  OP_LEFTSHIFT: result <=  a<< b; //添加op5的对应计算式.
-          default: result <= '0;//'0指把目标即result变量的所有位填为0.
+          OP_XOR:       result <= a ^ b;
+          OP_LEFTSHIFT: result <= a << b;
+          default:      result <= '0;
         endcase
       end
     end

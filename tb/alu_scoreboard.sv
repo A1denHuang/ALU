@@ -2,9 +2,7 @@ class alu_scoreboard;
   int pass_count = 0;
   int fail_count = 0;
 
-  // 把 top 中现有的 reference_model 函数搬到这里。
-  // 返回类型和 a、b 的类型改用 logic [7:0]。
-function automatic logic [7:0] reference_model(
+  function automatic logic [7:0] reference_model(
     input logic [2:0] op,
     input logic [7:0] a,
     input logic [7:0] b
@@ -15,7 +13,7 @@ function automatic logic [7:0] reference_model(
       3'd2: reference_model = a & b;
       3'd3: reference_model = a | b;
       3'd4: reference_model = a ^ b;
-      3'd5: reference_model = a << b;//添加左偏计算式.
+      3'd5: reference_model = a << b;
       default: reference_model = '0;
     endcase
   endfunction

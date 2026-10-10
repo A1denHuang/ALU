@@ -4,11 +4,11 @@ module tb_top;
   import alu_pkg::*;
   localparam int WIDTH = 8;
   logic clk = 1'b0;
-  alu_monitor mon;//定义监视类对象mon
-  alu_transaction tr;//定义事务类对象tr
-  alu_driver drv;//定义驱动类对象drv
-  alu_scoreboard scb;//定义记分板类对象scb
-  alu_coverage cov;//定义覆盖率类对象cov
+  alu_monitor mon;
+  alu_transaction tr;
+  alu_driver drv;
+  alu_scoreboard scb;
+  alu_coverage cov;
   always #5 clk = ~clk;
 
   alu_if #(WIDTH) vif(clk);
@@ -25,11 +25,12 @@ module tb_top;
   );
 
   alu_assertions checks (
-  .clk       (clk),
-  .rst_n     (vif.rst_n),
-  .req_valid (vif.req_valid),
-  .rsp_valid (vif.rsp_valid)
-);
+    .clk       (clk),
+    .rst_n     (vif.rst_n),
+    .req_valid (vif.req_valid),
+    .rsp_valid (vif.rsp_valid),
+    .result    (vif.result)
+  );
 
 
 
@@ -39,12 +40,19 @@ module tb_top;
     vif.op        = '0;
     vif.a         = '0;
     vif.b         = '0;
+
+    #1;
+    if (vif.rsp_valid !== 1'b0 || vif.result !== '0) begin
+      $fatal(1, "Output not reset after reset");
+    end
     repeat (2) @(posedge clk);
+    // Release reset away from the DUT sampling edge.
+    @(negedge clk);
     vif.rst_n = 1'b1;
     @(posedge clk);
   endtask
 
-  task automatic drive_and_check( input alu_transaction tr );
+  task automatic drive_and_check(input alu_transaction tr);
 
     alu_transaction observed;
 
@@ -55,23 +63,10 @@ module tb_top;
     end
 
     drv.drive(tr);
-    observed = mon.sample();// 监视器采样，获取DUT的输出
-    
-    scb.check(tr, observed);// 检查DUT的输出是否与参考模型一致
-    cov.op_cg.sample(tr.op);// 采样覆盖率
-    // if (!observed.rsp_valid) begin
-    //   $error("rsp_valid should be 1: op=%0d a=%0d b=%0d", tr.op, tr.a, tr.b);
-    //   fail_count++;
-    // end else if (observed.result !== expected) begin
-    //   $error("Mismatch: op=%0d a=%0d b=%0d expected=%0d actual=%0d",
-    //          tr.op, tr.a, tr.b, expected, observed.result);
-    //   fail_count++;
-    // end else begin
-    //   $display("[PASS] op=%0d a=%0d b=%0d result=%0d", tr.op, tr.a, tr.b, observed.result);
-    //   pass_count++;
-    // end
-
-    drv.idle();// 任务用于在驱动器中设置空闲状态
+    observed = mon.sample();
+    scb.check(tr, observed);
+    cov.op_cg.sample(tr.op);
+    drv.idle();
   endtask
   
 
@@ -113,6 +108,17 @@ module tb_top;
     tr = new(3'd5, 8'h81, 8'd1); // 最高位移出：02
     drive_and_check(tr);
     tr = new(3'd5, 8'hff, 8'd8); // 全部移出：00
+    drive_and_check(tr);
+
+    // 复位测试
+    tr = new(3'd0, 8'h06,  8'h09);//添加非零的测试用例.
+    drive_and_check(tr);
+    reset_dut(); // 复位测试
+
+    // 定向测试非法操作码
+    tr = new(3'd6, 8'h01,  8'h02); // 非法操作码
+    drive_and_check(tr);
+    tr = new(3'd7, 8'h01,  8'h02); // 非法操作码
     drive_and_check(tr);
 
     // 20条随机化事务测试

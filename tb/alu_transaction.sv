@@ -5,13 +5,13 @@ class alu_transaction;
   logic [7:0] result;
   logic      rsp_valid;
 
-  // 约束
   constraint legal_op_c {
     op inside {[3'd0:3'd5]};
-    if (op == 3'd5)
-    b inside {[8'd0:8'd8]};
+    if (op == 3'd5) {
+      b inside {[8'd0:8'd8]};
+    }
   }
-  
+
   function new(
     logic [2:0] op = 0,
     logic [7:0] a = 0,
